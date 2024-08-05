@@ -1,6 +1,5 @@
 import { Container, Text } from '@react-three/uikit';
 import {
-  BoxSelect,
   PowerCircle,
   PanelsTopLeft,
   AppWindow,
@@ -12,6 +11,7 @@ import { Input } from './apfel/input';
 import React from 'react';
 import { Card } from '../../../src/components/card';
 import { createWindow } from '../../../src/Utils/createWindow';
+import WindowManagement from './WindowManagement';
 
 export const TabBarWithText: React.FC = () => {
   const [selectedTab, setSelectedTab] = React.useState();
@@ -29,7 +29,8 @@ export const TabBarWithText: React.FC = () => {
         }
         return null;
       case '3':
-        return <Text>Label 3 Content</Text>;
+        createWindow(<WindowManagement />, { title: 'Window Management' });
+        return null;
       case '4':
         return <Text>Label 4 Content</Text>;
       case '5':
@@ -51,19 +52,16 @@ export const TabBarWithText: React.FC = () => {
         <Text marginBottom={10}>1. Import the necessary components:</Text>
         <Card padding={10} marginBottom={10}>
           <Text fontSize={12}>
-            import &#123;Window, WindowManager&#125; from '@spatialjs/core';
+            import &#123;WindowManager, createWindow&#125; from '@spatialjs/core';
           </Text>
         </Card>
         <Text marginBottom={10}>2. Create a new window component:</Text>
         <Card padding={10} marginBottom={10}>
           <Text fontSize={12}>
             {`const MyFirstWindow = () => (
-    <Window
-      title="My First Window"
-    >
       <Text>Hello, SpatialJS!</Text>
-    </Window>
-  );`}
+  );
+  createWindow(<MyFirstWindow />, { title: 'My First Window' });`}
           </Text>
         </Card>
         <Text marginBottom={10}>
@@ -88,10 +86,10 @@ export const TabBarWithText: React.FC = () => {
           justifyContent="space-between"
           width="100%"
         >
-          <Card onClick={() => addRandomWindow()}>
+          <Card onClick={() => addRandomWindow()} padding={10} margin={10}>
             <Text>Try it</Text>
           </Card>
-          <Card onClick={() => setSelectedTab('2')}>
+          <Card onClick={() => setSelectedTab('2')} padding={10} margin={10}>
             <Text>Next</Text>
           </Card>
         </Container>

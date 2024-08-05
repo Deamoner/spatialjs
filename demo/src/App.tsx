@@ -55,9 +55,9 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     // Add 20 random windows
-    // for (let i = 0; i < 8; i++) {
-    //   addRandomWindow();
-    // }
+    for (let i = 0; i < 8; i++) {
+      addRandomWindow();
+    }
     console.log('Creating main window');
     createWindow(<TabBarWithText />, {
       disableBackground: true,
@@ -82,6 +82,7 @@ const App: React.FC = () => {
         </Suspense>
         <WindowManager />
         <ambientLight intensity={0.5} />
+        <directionalLight position={[5, 5, 5]} intensity={0.5} castShadow />
       </Canvas>
       <div style={{ position: 'absolute', top: 10, left: 10 }}>
         <button onClick={addRandomWindow}>Add Window</button>

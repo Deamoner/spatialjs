@@ -30,6 +30,7 @@ export interface WindowInf {
   disableIcon?: boolean;
   disableActionBtns?: boolean;
   disableBackground?: boolean;
+  opacity?: number; // Added opacity option
 }
 
 interface WindowStore {
@@ -51,9 +52,10 @@ interface WindowStore {
   minimize: (id: string) => void;
   maximize: (id: string) => void;
   focus: (id: string) => void;
+  unfocus: (id: string) => void;
   close: (id: string) => void;
   tileWindows: (
-    mode: 'grid' | 'around' | 'cockpit',
+    mode: 'grid' | 'cockpit',
     adjustScale?: boolean
   ) => void;
   resetWindowPositions: () => void;
@@ -173,6 +175,8 @@ const createWindowStore = create<WindowStore>((set, get) => ({
       const focusedWindow = state.windows[id];
       const originalPositions = { ...state.originalPositions };
       const originalScales = { ...state.originalScales };
+      // Check if the window is already focused
+      
 
       // Store original position and scale if not already stored
       if (!originalPositions[id]) {
@@ -182,7 +186,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
         originalScales[id] = focusedWindow.scale.clone();
       }
 
-      const newPosition = get().getPointInFrontOfCamera(2); // Get point 2 units in front of camera
+      const newPosition = get().getPointInFrontOfCamera(3); // Get point 2 units in front of camera
 
       return {
         windows: Object.fromEntries(
@@ -203,10 +207,51 @@ const createWindowStore = create<WindowStore>((set, get) => ({
         originalScales,
       };
     }),
-  close: (id) =>
+  unfocus: (id) =>
     set((state) => {
-      const { [id]: _, ...rest } = state.windows;
-      return { windows: rest };
+      const window = state.windows[id];
+      if (!window) return state;
+      return {
+        windows: {
+          ...state.windows,
+          [id]: {
+            ...window,
+            isFocused: false,
+            position: state.originalPositions[id] || window.position,
+            scale: state.originalScales[id] || window.scale,
+          }
+        },
+      };
+    }),
+  close: (id) => 
+    set((state) => {
+      const { [id]: closedWindow, ...rest } = state.windows;
+      const newState = { windows: rest };
+
+      // Recalculate positions if we're in a tiled mode
+      if (state.currentTileMode) {
+        const remainingWindowIds = Object.keys(rest);
+        const { newPositions, newScales } = calculateTilePositions(
+          remainingWindowIds,
+          state.currentTileMode,
+          rest,
+          state.camera!,
+          true
+        );
+
+        newState.windows = Object.fromEntries(
+          Object.entries(rest).map(([windowId, window]) => [
+            windowId,
+            {
+              ...window,
+              position: newPositions[windowId] || window.position,
+              scale: newScales[windowId] || window.scale,
+            },
+          ])
+        );
+      }
+
+      return newState;
     }),
   tileWindows: (mode, adjustScale = true) =>
     set((state) => {

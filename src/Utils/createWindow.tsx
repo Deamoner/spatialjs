@@ -35,6 +35,7 @@ export function createWindow(
     isFullscreen: false,
     scale: new Vector3(1, 1, 1),
     isFocused: false,
+    opacity: 0.9, 
   };
 
   const windowConfig: WindowInf = {

@@ -47,6 +47,7 @@ export const Window: React.FC<BaseWindowProps> = ({
     focus,
     close,
     currentTileMode,
+    opacity,
   } = useWindowStore((state) => ({
     ...state.windows[id],
     setPosition: state.setPosition,
@@ -103,8 +104,8 @@ export const Window: React.FC<BaseWindowProps> = ({
             flexDirection="column"
             flexBasis={0}
             flexGrow={1}
-            backgroundOpacity={disableBackground ? 0 : 0.5}
-            borderOpacity={disableBackground ? 0 : 0.5}
+            backgroundOpacity={disableBackground ? 0 : opacity}
+            borderOpacity={disableBackground ? 0 : opacity}
             onSizeChange={(size: Vector2) => {
               useWindowStore.getState().updateWindowSize(id, size);
               useWindowStore.getState().recalculateTilePositions();
@@ -122,7 +123,6 @@ export const Window: React.FC<BaseWindowProps> = ({
               backgroundOpacity={0.5}
               position="absolute"
               top={-70}
-              left="50%"
               transform="translateX(-80%)"
               flexDirection="row"
               justifyContent="space-between"
@@ -154,7 +154,7 @@ export const Window: React.FC<BaseWindowProps> = ({
                   />
                 )}
                 {title && (
-                  <Container flexDirection="column">
+                  <Container flexDirection="column" paddingRight={10}>
                     <Text fontSize={12} color={colors.text}>
                       {title}
                     </Text>
@@ -168,8 +168,9 @@ export const Window: React.FC<BaseWindowProps> = ({
               </Container>
 
               {!disableActionBtns && (
-                <Container flexDirection="row" marginLeft={20}>
-                  <Container
+                <Container flexDirection="row" >
+                  {isFocused && (
+                    <Container
                     margin={2}
                     borderRadius={6}
                     width={12}
@@ -179,7 +180,9 @@ export const Window: React.FC<BaseWindowProps> = ({
                       e.stopPropagation();
                       isMinimized ? maximize(id) : minimize(id);
                     }}
-                  />
+                  />  
+                  )}
+                  
                   <Container
                     margin={2}
                     borderRadius={6}

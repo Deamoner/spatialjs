@@ -59,46 +59,42 @@ export function calculateTilePositions(
       }
     });
   } else if (mode === 'cockpit') {
-    const sphereRadius = 3; // Base radius of the sphere around the user
-    const phi = Math.PI * (3 - Math.sqrt(5)); // Golden angle in radians
+    const baseDistance = 3; // Base distance from the camera
+    const windowSpacing = 0.5; // Fixed spacing between windows
+    const maxHorizontalWindows = 5; // Maximum number of windows in a row
 
-    // Calculate total area of all windows
-    const totalArea = windowIds.reduce(
-      (sum, id) => sum + windows[id].width * windows[id].height,
-      0
-    );
-    const averageArea = totalArea / count;
-
-    // Calculate a uniform scale factor to fit all windows within a certain view
-    const scaleFactor = Math.sqrt(averageArea / totalArea);
-
-    // Define viewable angles (e.g., 120 degrees horizontally and 90 degrees vertically)
-    const horizontalFOV = (Math.PI * 5) / 9; // 100 degrees
-    const verticalFOV = (Math.PI * 7) / 18; // 70 degrees
+    const cameraDirection = camera.getWorldDirection(new Vector3());
+    const cameraRight = new Vector3().crossVectors(cameraDirection, camera.up).normalize();
+    const cameraUp = new Vector3().crossVectors(cameraRight, cameraDirection).normalize();
 
     windowIds.forEach((id, index) => {
-      const window = windows[id];
-      const windowArea = window.width * window.height;
-      const sizeRatio = Math.sqrt(windowArea / averageArea) * scaleFactor;
+      let x, y, z;
 
-      // Calculate the position within the viewable angles
-      const theta =
-        (index % Math.ceil(Math.sqrt(count))) *
-          (horizontalFOV / Math.ceil(Math.sqrt(count))) -
-        horizontalFOV / 2;
-      const phi =
-        Math.floor(index / Math.ceil(Math.sqrt(count))) *
-          (verticalFOV / Math.ceil(Math.sqrt(count))) -
-        verticalFOV / 2;
+      if (index === 0) {
+        // Place the first window directly in front of the camera
+        x = 0;
+        y = 0;
+        z = -baseDistance;
+      } else {
+        const row = Math.floor(index / maxHorizontalWindows);
+        const col = index % maxHorizontalWindows;
 
-      const x = Math.sin(theta) * Math.cos(phi) * sphereRadius;
-      const y = Math.sin(phi) * sphereRadius;
-      const z = -Math.cos(theta) * Math.cos(phi) * sphereRadius;
+        x = (col - Math.floor(maxHorizontalWindows / 2)) * windowSpacing;
+        y = -row * windowSpacing;
+        z = -baseDistance - row * windowSpacing * 0.5; // Slight curve
+      }
 
-      newPositions[id] = rotatePosition(new Vector3(x, y, z));
+      const position = new Vector3(x, y, z);
+      position.applyAxisAngle(cameraUp, camera.rotation.y);
+      position.applyAxisAngle(cameraRight, -camera.rotation.x);
+      newPositions[id] = camera.position.clone().add(position);
 
       if (adjustScale) {
-        newScales[id] = new Vector3(sizeRatio, sizeRatio, sizeRatio);
+        const targetSize = 100; // Adjust this value to change the size of windows
+        const scaleX = targetSize / windows[id].width;
+        const scaleY = targetSize / windows[id].height;
+        const uniformScale = Math.min(scaleX, scaleY);
+        newScales[id] = new Vector3(scaleX, scaleY, uniformScale);
       }
     });
   }
