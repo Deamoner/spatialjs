@@ -1,0 +1,76 @@
+{
+  "name": "@spatialjs/core",
+  "version": "0.1.0",
+  "main": "./dist/spatialjs.es.js",
+  "module": "./dist/spatialjs.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/spatialjs.es.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "private": false,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "demo": "vite serve demo",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "spatial",
+    "r3f",
+    "ui",
+    "react",
+    "three.js",
+    "webgl"
+  ],
+  "author": "Matthew Davis",
+  "license": "UNLICENSED",
+  "description": "",
+  "dependencies": {
+    "@react-spring/three": "^9.7.4",
+    "@react-three/fiber": "^8.16.0",
+    "@react-three/uikit": "^0.4.0",
+    "three": "^0.167.0",
+    "uuid": "^10.0.0",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@react-three/drei": "^9.109.2",
+    "@react-three/uikit-lucide": "^0.4.0",
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/three": "^0.167.1",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "prettier": "^3.3.3",
+    "rollup": "^4.19.1",
+    "rollup-plugin-dts": "^6.1.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5",
+    "vite-plugin-dts": "^4.0.0-beta.1"
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://spatialjs.dev/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Deamoner/spatialjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Deamoner/spatialjs/issues"
+  },
+  "peerDependencies": {
+    "@react-three/fiber": "^8.16.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "three": "^0.167.0",
+    "zustand": "^4.5.0"
+  }
+}
