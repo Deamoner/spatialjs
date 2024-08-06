@@ -30,6 +30,7 @@ export interface WindowInf {
   disableIcon?: boolean;
   disableActionBtns?: boolean;
   disableBackground?: boolean;
+  disableAdjustSize?: boolean;
   opacity?: number; // Added opacity option
 }
 
@@ -55,7 +56,7 @@ interface WindowStore {
   unfocus: (id: string) => void;
   close: (id: string) => void;
   tileWindows: (
-    mode: 'grid' | 'cockpit',
+    mode: 'grid' | 'around' | 'cockpit',
     adjustScale?: boolean
   ) => void;
   resetWindowPositions: () => void;

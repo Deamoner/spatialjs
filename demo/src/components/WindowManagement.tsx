@@ -49,7 +49,10 @@ const WindowManagement: React.FC = () => {
         <Card onClick={() => tileWindows('grid', true)} padding={10} margin={5}>
           <Text>Tile Windows (Grid)</Text>
         </Card>
-        <Card onClick={() => tileWindows('cockpit', true)} padding={10} margin={5}>
+        <Card onClick={() => tileWindows('around', true)} padding={10} margin={5}>
+          <Text>Tile Windows (Around)</Text>
+        </Card>
+        <Card onClick={() => tileWindows('cockpit', false)} padding={10} margin={5}>
           <Text>Tile Windows (Cockpit)</Text>
         </Card>
 

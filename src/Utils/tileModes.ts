@@ -11,8 +11,8 @@ export function calculateTilePositions(
   newPositions: Record<string, Vector3>;
   newScales: Record<string, Vector3>;
 } {
-  const newPositions: Record<string, Vector3> = {};
-  const newScales: Record<string, Vector3> = {};
+  let newPositions: Record<string, Vector3> = {};
+  let newScales: Record<string, Vector3> = {};
   const count = windowIds.length;
 
   // Helper function to rotate a position based on camera orientation
@@ -26,13 +26,15 @@ export function calculateTilePositions(
   if (mode === 'grid') {
     const cols = Math.ceil(Math.sqrt(count));
     const rows = Math.ceil(count / cols);
-    const baseZ = -5; // Base distance from the camera
+    const baseZ = -4; // Base distance from the camera
     const spacing = 2; // Spacing between windows
 
     windowIds.forEach((id, index) => {
+      
+      const window = windows[id];
       const col = index % cols;
       const row = Math.floor(index / cols);
-      const x = (col - (cols - 1) / 2) * spacing;
+      const x = ((col - (cols - 1) / 2) * spacing) ;
       const y = ((rows - 1) / 2 - row) * spacing;
       const z = baseZ - Math.abs(x) * 0.1 - Math.abs(y) * 0.1; // Curve the grid slightly
       newPositions[id] = rotatePosition(new Vector3(x, y, z));
@@ -59,63 +61,56 @@ export function calculateTilePositions(
       }
     });
   } else if (mode === 'cockpit') {
-    const baseDistance = 3; // Base distance from the camera
-    const windowSpacing = 0.5; // Fixed spacing between windows
-    const maxHorizontalWindows = 5; // Maximum number of windows in a row
-
-    const cameraDirection = camera.getWorldDirection(new Vector3());
-    const cameraRight = new Vector3().crossVectors(cameraDirection, camera.up).normalize();
-    const cameraUp = new Vector3().crossVectors(cameraRight, cameraDirection).normalize();
-
-    windowIds.forEach((id, index) => {
-      let x, y, z;
-
-      if (index === 0) {
-        // Place the first window directly in front of the camera
-        x = 0;
-        y = 0;
-        z = -baseDistance;
-      } else {
-        const row = Math.floor(index / maxHorizontalWindows);
-        const col = index % maxHorizontalWindows;
-
-        x = (col - Math.floor(maxHorizontalWindows / 2)) * windowSpacing;
-        y = -row * windowSpacing;
-        z = -baseDistance - row * windowSpacing * 0.5; // Slight curve
-      }
-
-      const position = new Vector3(x, y, z);
-      position.applyAxisAngle(cameraUp, camera.rotation.y);
-      position.applyAxisAngle(cameraRight, -camera.rotation.x);
-      newPositions[id] = camera.position.clone().add(position);
-
-      if (adjustScale) {
-        const targetSize = 100; // Adjust this value to change the size of windows
-        const scaleX = targetSize / windows[id].width;
-        const scaleY = targetSize / windows[id].height;
-        const uniformScale = Math.min(scaleX, scaleY);
-        newScales[id] = new Vector3(scaleX, scaleY, uniformScale);
-      }
-    });
-  }
-
-  // Adjust positions to prevent overlapping
-  const minDistance = 1; // Minimum distance between window centers
-  for (let i = 0; i < windowIds.length; i++) {
-    for (let j = i + 1; j < windowIds.length; j++) {
-      const pos1 = newPositions[windowIds[i]];
-      const pos2 = newPositions[windowIds[j]];
-      const distance = pos1.distanceTo(pos2);
-      if (distance < minDistance) {
-        const midpoint = pos1.clone().add(pos2).multiplyScalar(0.5);
-        const direction1 = pos1.clone().sub(midpoint).normalize();
-        const direction2 = pos2.clone().sub(midpoint).normalize();
-        const adjustment = (minDistance - distance) / 2;
-        pos1.add(direction1.multiplyScalar(adjustment));
-        pos2.add(direction2.multiplyScalar(adjustment));
-      }
-    }
+    ({ newPositions, newScales } = cockpit(windowIds, windows, camera, adjustScale));
   }
 
   return { newPositions, newScales };
 }
+
+function cockpit(
+  windowIds: string[],
+  windows: Record<string, WindowInf>,
+  camera: Camera,
+  adjustScale: boolean
+): { newPositions: Record<string, Vector3>; newScales: Record<string, Vector3> } {
+  const newPositions: Record<string, Vector3> = {};
+  const newScales: Record<string, Vector3> = {};
+  // @ts-ignore
+  const fov = camera.fov * (Math.PI / 180);
+  // @ts-ignore
+  const aspectRatio = camera.aspect;
+  const baseDistance = 2; // Brought even closer
+  const maxWidth = 2 * Math.tan(fov / 2) * baseDistance;
+  const maxHeight = maxWidth / aspectRatio;
+
+  const maxCols = Math.ceil(Math.sqrt(windowIds.length));
+  const rows = Math.ceil(windowIds.length / maxCols);
+
+  windowIds.forEach((id, index) => {
+    const window = windows[id];
+    const col = index % maxCols;
+    const row = Math.floor(index / maxCols);
+
+    // Calculate scale to fit all windows
+    const scaleFactorWidth = maxWidth / (window.width * maxCols);
+    const scaleFactorHeight = maxHeight / (window.height * rows);
+    const scaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight, 1) * 0.9; // 10% margin
+
+    newScales[id] = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+
+    const scaledWidth = window.width * scaleFactor;
+    const scaledHeight = window.height * scaleFactor;
+
+    // Calculate position
+    const x = (col - (maxCols - 1) / 2) * scaledWidth * 1.1;
+    const y = ((rows - 1) / 2 - row) * scaledHeight * 1.1;
+    const z = -baseDistance - Math.abs(x) * 0.05 - Math.abs(y) * 0.05; // Slight curve
+
+    const position = new Vector3(x, y, z);
+    position.applyEuler(camera.rotation);
+    newPositions[id] = camera.position.clone().add(position);
+  });
+
+  return { newPositions, newScales };
+}
+

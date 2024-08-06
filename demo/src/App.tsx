@@ -16,8 +16,8 @@ const ImageWindow: React.FC = () => (
   <Container width="100%" height="100%">
     <Image
       src="https://techlead.agency/api/ai/images/66a6cff8fa664a0ed1553a62"
-      width="100%"
-      height="100%"
+      width={100}
+      height={100}
       objectFit="cover"
     />
   </Container>
@@ -55,9 +55,9 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     // Add 20 random windows
-    for (let i = 0; i < 8; i++) {
-      addRandomWindow();
-    }
+    // for (let i = 0; i < 2; i++) {
+    //   addRandomWindow();
+    // }
     console.log('Creating main window');
     createWindow(<TabBarWithText />, {
       disableBackground: true,
