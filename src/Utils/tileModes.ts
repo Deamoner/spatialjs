@@ -79,7 +79,7 @@ function cockpit(
   const fov = camera.fov * (Math.PI / 180);
   // @ts-ignore
   const aspectRatio = camera.aspect;
-  const baseDistance = 2; // Brought even closer
+  const baseDistance = 5; // Brought even closer
   const maxWidth = 2 * Math.tan(fov / 2) * baseDistance;
   const maxHeight = maxWidth / aspectRatio;
 
@@ -92,14 +92,14 @@ function cockpit(
     const row = Math.floor(index / maxCols);
 
     // Calculate scale to fit all windows
-    const scaleFactorWidth = maxWidth / (window.width * maxCols);
-    const scaleFactorHeight = maxHeight / (window.height * rows);
-    const scaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight, 1) * 0.9; // 10% margin
+    // const scaleFactorWidth = maxWidth / (window.width * maxCols);
+    // const scaleFactorHeight = maxHeight / (window.height * rows);
+    // const scaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight, 1) * 0.9; // 10% margin
 
-    newScales[id] = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+    newScales[id] = new Vector3(1, 1, 1);
 
-    const scaledWidth = window.width * scaleFactor;
-    const scaledHeight = window.height * scaleFactor;
+    const scaledWidth = 1;
+    const scaledHeight = 1;
 
     // Calculate position
     const x = (col - (maxCols - 1) / 2) * scaledWidth * 1.1;

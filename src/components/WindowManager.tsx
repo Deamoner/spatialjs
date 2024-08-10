@@ -10,6 +10,7 @@ interface WindowManagerProps {
 export const WindowManager: React.FC<WindowManagerProps> = () => {
   const windows = useWindowStore((state) => state.windows);
   const setCamera = useWindowStore((state) => state.setCamera);
+  const resetWindowInfrontOfCamera = useWindowStore((state) => state.resetWindowInfrontOfCamera);
 
   const three = useThree((state) => ({ camera: state.camera }));
 
@@ -18,6 +19,12 @@ export const WindowManager: React.FC<WindowManagerProps> = () => {
       setCamera(three.camera);
     }
   }, [three, setCamera]);
+
+  // When XR camera is set, set the camera in the store
+  useEffect(() => {
+    setCamera(three.camera);
+    //resetWindowInfrontOfCamera();
+  }, [three.camera]);
 
   return (
     <>

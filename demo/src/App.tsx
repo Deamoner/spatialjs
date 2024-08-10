@@ -31,14 +31,6 @@ const TransparentWindow: React.FC = () => (
   </Container>
 );
 
-const Background = () => {
-  return (
-    <>
-      <Environment preset="forest" background={true} />
-    </>
-  );
-};
-
 const App: React.FC = () => {
   const addRandomWindow = () => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -54,17 +46,11 @@ const App: React.FC = () => {
   };
 
   React.useEffect(() => {
-    // Add 20 random windows
-    // for (let i = 0; i < 2; i++) {
-    //   addRandomWindow();
-    // }
-    console.log('Creating main window');
     createWindow(<TabBarWithText />, {
       disableBackground: true,
       title: 'Main',
       disableTitleBar: true,
     });
-    // addTransparentWindow();
   }, []);
 
   return (
@@ -78,7 +64,7 @@ const App: React.FC = () => {
           maxPolarAngle={Math.PI / 2}
         />
         <Suspense fallback={null}>
-          <Background />
+          <Environment preset="forest" background={true} />
         </Suspense>
         <WindowManager />
         <ambientLight intensity={0.5} />

@@ -5,7 +5,7 @@ import { WindowInf, useWindowStore } from '../stores/windowStore';
 import { Window } from '../components/BaseWindow';
 
 interface CreateWindowOptions
-  extends Partial<Omit<WindowInf, 'id' | 'content'>> {}
+  extends Partial<Omit<WindowInf, 'content'>> {}
 
 export function createWindow(
   content: React.ReactNode,
@@ -13,7 +13,7 @@ export function createWindow(
 ): WindowInf {
   const windowStore = useWindowStore.getState();
   const existingWindow = Object.values(windowStore.windows).find(
-    (window) => window.title === options.title
+    (window) => window.id === options.id
   );
 
   if (existingWindow) {
@@ -24,10 +24,10 @@ export function createWindow(
   }
 
   const windowId = uuidv4();
-  const defaultWindow: WindowInf = {
+  const defaultWindow: Partial<WindowInf> = {
     id: windowId,
-    title: '',
     position: new Vector3(0, 0, 0),
+    title: '',
     content,
     width: 300,
     height: 200,
@@ -36,9 +36,10 @@ export function createWindow(
     scale: new Vector3(1, 1, 1),
     isFocused: false,
     opacity: 0.9, 
+    followCamera: true,
   };
 
-  const windowConfig: WindowInf = {
+  const windowConfig: Partial<WindowInf> = {
     ...defaultWindow,
     ...options,
   };

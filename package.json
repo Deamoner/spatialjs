@@ -16,6 +16,9 @@
     "build": "vite build",
     "dev": "vite build --watch",
     "demo": "vite serve demo",
+    "tutorial1": "vite serve examples/tutorial-1",
+    "music": "vite serve examples/music-player",
+    "room": "vite serve examples/room --host",
     "format": "prettier --write ."
   },
   "keywords": [
@@ -40,6 +43,7 @@
   "devDependencies": {
     "@react-three/drei": "^9.109.2",
     "@react-three/uikit-lucide": "^0.4.0",
+    "@react-three/xr": "^6.1.0",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
@@ -47,13 +51,15 @@
     "@types/react-dom": "^18.3.0",
     "@types/three": "^0.167.1",
     "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-basic-ssl": "^1.1.0",
     "@vitejs/plugin-react": "^4.2.1",
     "prettier": "^3.3.3",
     "rollup": "^4.19.1",
     "rollup-plugin-dts": "^6.1.1",
     "typescript": "^5.5.4",
     "vite": "^5.3.5",
-    "vite-plugin-dts": "^4.0.0-beta.1"
+    "vite-plugin-dts": "^4.0.0-beta.1",
+    "vite-plugin-mkcert": "^1.17.5"
   },
   "files": [
     "dist"
