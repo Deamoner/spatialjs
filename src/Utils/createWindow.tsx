@@ -44,10 +44,10 @@ export function createWindow(
     ...options,
   };
 
-  windowStore.addWindow(windowConfig);
+  windowStore.addWindow(windowConfig as WindowInf);
   console.log(`Created new window with title "${windowConfig.title}"`);
 
-  return windowConfig;
+  return windowConfig as WindowInf;
 }
 
 interface CreateWindowComponentProps extends CreateWindowOptions {

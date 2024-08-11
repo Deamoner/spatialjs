@@ -36,6 +36,8 @@ export interface WindowInf {
 
 interface WindowStore {
   windows: Record<string, WindowInf>;
+  defaultTileDistance: number;
+  defaultFocusDistance: number;
   addWindow: (
     window: WindowInf
   ) => void;
@@ -65,16 +67,18 @@ interface WindowStore {
   getPointInFrontOfCamera: (distance: number) => Vector3;
   debug: boolean;
   setDebug: (value: boolean) => void;
-  lastWindow: string | undefined;
-  setLastWindow: (id: string) => void;
+  selectedWindow: string | undefined;
+  setSelectedWindow: (id: string) => void;
 }
 
 const createWindowStore = create<WindowStore>((set, get) => ({
   windows: {},
+  defaultTileDistance: 3,
+  defaultFocusDistance: 2.5,
   camera: null,
   setCamera: (camera) => set({ camera }),
-  lastWindow: undefined,
-  setLastWindow: (id) => set({ lastWindow: id }),
+  selectedWindow: undefined,
+  setSelectedWindow: (id) => set({ selectedWindow: id }),
   resetWindowInfrontOfCamera: () => {
     if (get().debug) console.log('resetWindowInfrontOfCamera called');
     set((state) => ({
@@ -87,7 +91,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
   addWindow: (window) => {
     if (get().debug) console.log('addWindow called');
     if (!window.position || window.position.equals(new Vector3(0, 0, 0))) {
-      window.position = get().getPointInFrontOfCamera(5);
+      window.position = get().getPointInFrontOfCamera(get().defaultTileDistance);
     }
     console.log(window);
     set((state) => ({
@@ -110,7 +114,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
         }, 300);
       }
       set((state) => ({
-        lastWindow: window.id,
+        selectedWindow: window.id,
       }));
   },  
   removeWindow: (id) => {
@@ -234,7 +238,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
         originalScales[id] = focusedWindow.scale.clone();
       }
 
-      const newPosition = get().getPointInFrontOfCamera(3.5); // Get point 3.5 units in front of camera
+      const newPosition = get().getPointInFrontOfCamera(get().defaultFocusDistance); // Get point 3.5 units in front of camera
 
       return {
         windows: {

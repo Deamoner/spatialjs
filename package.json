@@ -1,6 +1,6 @@
 {
   "name": "@spatialjs/core",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "main": "./dist/spatialjs.es.js",
   "module": "./dist/spatialjs.es.js",
   "types": "./dist/index.d.ts",
@@ -11,6 +11,9 @@
     }
   },
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "scripts": {
     "build": "vite build",

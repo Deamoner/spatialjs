@@ -53,8 +53,8 @@ export const Window: React.FC<BaseWindowProps> = ({
     opacity,
     followCamera,
     rotation,
-    lastWindow,
-    setLastWindow,
+    selectedWindow,
+    setSelectedWindow,
   } = useWindowStore((state) => ({
     ...state.windows[id],
     setPosition: state.setPosition,
@@ -65,8 +65,8 @@ export const Window: React.FC<BaseWindowProps> = ({
     focus: state.focus,
     close: state.close,
     currentTileMode: state.currentTileMode,
-    lastWindow: state.lastWindow,
-    setLastWindow: state.setLastWindow,
+    selectedWindow: state.selectedWindow,
+    setSelectedWindow: state.setSelectedWindow,
   }));
 
   // Use prop values if provided, otherwise fall back to store values
@@ -77,8 +77,8 @@ export const Window: React.FC<BaseWindowProps> = ({
 
   // Use effect to update selected state when lastWindow changes
   useEffect(() => {
-    setSelected(lastWindow === id);
-  }, [lastWindow, id]);
+    setSelected(selectedWindow === id);
+  }, [selectedWindow, id]);
 
   const { spring } = useSpring({
     spring: position.toArray(),
@@ -95,17 +95,17 @@ export const Window: React.FC<BaseWindowProps> = ({
     config: { mass: 1, tension: 280, friction: 60 },
   });
 
-  useEffect(() => {
-    if (groupRef && groupRef.current && followCamera) {
-      groupRef.current.lookAt(camera.position);
-    }
-  }, [camera.position, followCamera]);
+  // useEffect(() => {
+  //   if (groupRef && groupRef.current && followCamera) {
+  //     groupRef.current.lookAt(camera.position);
+  //   }
+  // }, [camera.position, followCamera]);
 
-  useFrame(() => {
-    if (groupRef && groupRef.current && followCamera) {
-      groupRef.current.lookAt(camera.position);
-    }
-  });
+  // useFrame(() => {
+  //   if (groupRef && groupRef.current && followCamera) {
+  //     groupRef.current.lookAt(camera.position);
+  //   }
+  // });
 
   const handleTitleBarClick = (e: any) => {
     e.stopPropagation();
@@ -113,7 +113,7 @@ export const Window: React.FC<BaseWindowProps> = ({
       focus(id);
     }
     setSelected(!selected);
-    setLastWindow(selected ? undefined : id);
+    setSelectedWindow(selected ? undefined : id);
   };
 
   return (
@@ -162,11 +162,6 @@ export const Window: React.FC<BaseWindowProps> = ({
               marginTop={10}
               backgroundColor={selected ? 'green' : undefined}
               onClick={handleTitleBarClick}
-              onHoverChange={(e: any) => {
-                console.log(e);
-                e.stopPropagation();
-                setLastWindow(id);
-              }}
               style={{
                 cursor: currentTileMode === 'cockpit' ? 'pointer' : 'default',
               }}
