@@ -21,6 +21,35 @@ SpatialJS Core is a powerful library for building spatial applications for the o
   </a>
 </p>
 
+## Amazing Projects Making SpatialJS Possible:
+
+<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+    <a href="https://github.com/pmndrs/react-three-fiber" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.shields.io/badge/React_Three_Fiber-000000?style=for-the-badge&logo=react&logoColor=white" alt="React Three Fiber" />
+    </a>
+    <a href="https://twitter.com/0xca0a" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.shields.io/badge/@0xca0a-000000?style=for-the-badge&logo=twitter&logoColor=white" alt="Paul Henschel Twitter" />
+    </a>
+  </div>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+    <a href="https://github.com/pmndrs/react-xr" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.shields.io/badge/React_XR-000000?style=for-the-badge&logo=react&logoColor=white" alt="React XR" />
+    </a>
+    <a href="https://twitter.com/BelaBohlender" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.shields.io/badge/@0xca0a-000000?style=for-the-badge&logo=twitter&logoColor=white" alt="Bela Bohlenderl Twitter" />
+    </a>
+  </div>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+    <a href="https://github.com/pmndrs/uikit" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.shields.io/badge/React_Three_UI_Kit-000000?style=for-the-badge&logo=react&logoColor=white" alt="React Three UI Kit" />
+    </a>
+    <a href="https://twitter.com/BelaBohlender" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.shields.io/badge/@0xca0a-000000?style=for-the-badge&logo=twitter&logoColor=white" alt="Bela Bohlender Twitter" />
+    </a>
+  </div>
+</div>
+
 ## Features
 
 - Create and manage 3D windows in a spatial environment
@@ -32,7 +61,7 @@ SpatialJS Core is a powerful library for building spatial applications for the o
 ## What does Spatialjs do?
 
 | Simple Example for a room with a music player | ![render of the above code](./assets/spatialjs-demo.gif) |
-| --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| --------------------------------------------- | -------------------------------------------------------- |
 
 ## Installation
 
@@ -41,19 +70,23 @@ Install SpatialJS Core and its peer dependencies:
 ```bash
 npm install @spatialjs/core react @react-three/fiber three @react-three/uikit
 ```
+
 ## Quick Start
 
-1. Add the WindowManager to your scene  
+1. Add the WindowManager to your scene
+
 ```tsx
 import { WindowManager, createWindow } from "@spatialjs/core";
-<WindowManager />
+<WindowManager />;
 ```
 
-2. Add a Window to your scene  
+2. Add a Window to your scene
+
 ```tsx
 import { createWindow } from "@spatialjs/core";
-const window = createWindow(<MusicPlayer />, {
+const window = createWindow(MusicPlayer, {
   title: "My Window",
+  disableBackground: true,
 });
 ```
 
@@ -69,7 +102,6 @@ Check out our [examples directory](https://www.spatialjs.dev/examples) for more 
 
 We welcome contributions! Please see our [contributing guidelines](link_to_contributing_guidelines) for more details.
 
-
 ## Support
 
 For questions, bug reports, or feature requests, please open an issue on our [GitHub repository](https://github.com/Deamoner/spatialjs).
@@ -77,3 +109,11 @@ For questions, bug reports, or feature requests, please open an issue on our [Gi
 ---
 
 Built with ❤️ by [Deamoner](https://twitter.com/spatialmatty)
+
+Visit my personal site: [mattydavis.ca](https://mattydavis.ca/)
+
+Subscribe to my [YouTube channel](https://www.youtube.com/@mattjdavis) for more SpatialJS tutorials and updates!
+
+Follow me on [Medium](https://medium.com/@mdavis-71283) for articles on SpatialJS, web development, and more!
+
+Join the discord for more help and support: [discord.gg/tKNwtpDVJn](https://discord.gg/tKNwtpDVJn)

@@ -1,10 +1,11 @@
-import React, { Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { WindowManager } from '../../src/components/WindowManager';
-import { createWindow } from '../../src/Utils/createWindow';
-import { Text, Image, Container } from '@react-three/uikit';
-import { OrbitControls, Environment } from '@react-three/drei';
-import { TabBarWithText } from './components/main';
+import React, { Suspense } from "react";
+import { Canvas } from "@react-three/fiber";
+import { WindowManager } from "../../src/components/WindowManager";
+import { createWindow } from "../../src/Utils/createWindow";
+import { Text, Image, Container } from "@react-three/uikit";
+import { OrbitControls, Environment } from "@react-three/drei";
+import { TabBarWithText } from "./components/main";
+import { useWindowStore } from "../../src/stores/windowStore";
 
 const TextWindow: React.FC<{ id: string }> = ({ id }) => (
   <Container>
@@ -32,29 +33,28 @@ const TransparentWindow: React.FC = () => (
 );
 
 const App: React.FC = () => {
+  const { tileWindows, resetWindowPositions } = useWindowStore();
   const addRandomWindow = () => {
     const id = Math.random().toString(36).substr(2, 9);
     const isImageWindow = Math.random() > 0.5;
 
-    const windowConfig = createWindow(
-      isImageWindow ? <ImageWindow /> : <TextWindow id={id} />
-    );
+    const windowConfig = createWindow(isImageWindow ? ImageWindow : TextWindow);
   };
 
   const addTransparentWindow = () => {
-    createWindow(<TransparentWindow />, { disableBackground: true });
+    createWindow(TransparentWindow, { disableBackground: true });
   };
 
   React.useEffect(() => {
-    createWindow(<TabBarWithText />, {
+    createWindow(TabBarWithText, {
       disableBackground: true,
-      title: 'Main',
+      title: "Main",
       disableTitleBar: true,
     });
   }, []);
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <div style={{ width: "100vw", height: "100vh" }}>
       <Canvas>
         <OrbitControls
           enableZoom={true}
@@ -70,12 +70,12 @@ const App: React.FC = () => {
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 5, 5]} intensity={0.5} castShadow />
       </Canvas>
-      <div style={{ position: 'absolute', top: 10, left: 10 }}>
+      <div style={{ position: "absolute", top: 10, left: 10 }}>
         <button onClick={addRandomWindow}>Add Window</button>
-        {/* <button onClick={() => tileWindows('grid')}>Tile Grid</button>
-          <button onClick={() => tileWindows('around')}>Tile Around</button>
-          <button onClick={() => tileWindows('cockpit')}>Tile Cockpit</button>
-          <button onClick={resetWindowPositions}>Reset Positions</button> */}
+        <button onClick={() => tileWindows("grid")}>Tile Grid</button>
+        <button onClick={() => tileWindows("around")}>Tile Around</button>
+        <button onClick={() => tileWindows("cockpit")}>Tile Cockpit</button>
+        <button onClick={resetWindowPositions}>Reset Positions</button>
         <button onClick={addTransparentWindow}>Add Transparent Window</button>
       </div>
     </div>

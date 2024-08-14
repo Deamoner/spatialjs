@@ -1,17 +1,17 @@
-// src/components/BaseWindow.tsx
-import React, { useRef, useEffect, useState } from 'react';
-import { Group, Vector2 } from 'three';
-import { a } from '@react-spring/three';
-import { useSpring } from '@react-spring/core';
-import { Root, Container, Text, Image } from '@react-three/uikit';
-import { useThree, useFrame } from '@react-three/fiber';
-import { Card } from './card';
-import { colors } from '../theme';
-import { useWindowStore } from '../stores/windowStore';
-import { Outlines } from '@react-three/drei';
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import { Group, Vector2 } from "three";
+import { a } from "@react-spring/three";
+import { useSpring } from "@react-spring/core";
+import { Root, Container, Text, Image } from "@react-three/uikit";
+import { Card } from "./card";
+import { colors } from "../theme";
+import { useWindowStore } from "../stores/windowStore";
+import { debounce } from "lodash";
 
 interface BaseWindowProps {
   id: string;
+  WindowComponent: React.ComponentType<any>;
+  windowProps: any;
   disableTitleBar?: boolean;
   disableIcon?: boolean;
   disableActionBtns?: boolean;
@@ -20,13 +20,14 @@ interface BaseWindowProps {
 
 export const Window: React.FC<BaseWindowProps> = ({
   id,
+  WindowComponent,
+  windowProps,
   disableTitleBar: propDisableTitleBar,
   disableIcon: propDisableIcon,
   disableActionBtns: propDisableActionBtns,
   disableBackground: propDisableBackground,
 }) => {
   const groupRef = useRef<Group>(null);
-  const { camera } = useThree();
   const [selected, setSelected] = useState(false);
 
   const {
@@ -41,7 +42,6 @@ export const Window: React.FC<BaseWindowProps> = ({
     disableIcon: storeDisableIcon,
     disableActionBtns: storeDisableActionBtns,
     disableBackground: storeDisableBackground,
-    content,
     setPosition,
     setScale,
     setRotation,
@@ -95,33 +95,32 @@ export const Window: React.FC<BaseWindowProps> = ({
     config: { mass: 1, tension: 280, friction: 60 },
   });
 
-  // useEffect(() => {
-  //   if (groupRef && groupRef.current && followCamera) {
-  //     groupRef.current.lookAt(camera.position);
-  //   }
-  // }, [camera.position, followCamera]);
-
-  // useFrame(() => {
-  //   if (groupRef && groupRef.current && followCamera) {
-  //     groupRef.current.lookAt(camera.position);
-  //   }
-  // });
-
   const handleTitleBarClick = (e: any) => {
     e.stopPropagation();
-    if (currentTileMode === 'cockpit') {
+    if (currentTileMode === "cockpit") {
       focus(id);
     }
     setSelected(!selected);
     setSelectedWindow(selected ? undefined : id);
   };
 
+  const MemoizedWindowComponent = React.useMemo(() => {
+    return <WindowComponent {...windowProps} />;
+  }, [WindowComponent, ...Object.values(windowProps)]);
+
+  const debouncedUpdateWindowSize = useCallback(
+    debounce((size: Vector2) => {
+      useWindowStore.getState().updateWindowSize(id, size);
+    }, 200),
+    [id]
+  );
+
   return (
-    <a.group 
-      ref={groupRef} 
-      position={spring} 
+    <a.group
+      ref={groupRef}
+      position={spring}
       scale={springScale}
-      rotation={springRotation}
+      rotation={springRotation as any}
     >
       <Root>
         <Container flexDirection="column" alignItems="center" width="100%">
@@ -134,14 +133,11 @@ export const Window: React.FC<BaseWindowProps> = ({
             flexGrow={1}
             backgroundOpacity={disableBackground ? 0 : opacity}
             borderOpacity={disableBackground ? 0 : opacity}
-            onSizeChange={(size: Vector2) => {
-              useWindowStore.getState().updateWindowSize(id, size);
-              
-            }}
+            onSizeChange={debouncedUpdateWindowSize}
           >
             <Container flexDirection="column" height="100%" width="100%">
               <Container flexGrow={1} padding={20} width="100%" height="100%">
-                {content}
+                {MemoizedWindowComponent}
               </Container>
             </Container>
           </Card>
@@ -160,10 +156,10 @@ export const Window: React.FC<BaseWindowProps> = ({
               borderRadius={20}
               whiteSpace="nowrap"
               marginTop={10}
-              backgroundColor={selected ? 'green' : undefined}
+              backgroundColor={selected ? "green" : undefined}
               onClick={handleTitleBarClick}
               style={{
-                cursor: currentTileMode === 'cockpit' ? 'pointer' : 'default',
+                cursor: currentTileMode === "cockpit" ? "pointer" : "default",
               }}
             >
               <Container
@@ -197,21 +193,21 @@ export const Window: React.FC<BaseWindowProps> = ({
               </Container>
 
               {!disableActionBtns && (
-                <Container flexDirection="row" >
+                <Container flexDirection="row">
                   {isFocused && (
                     <Container
-                    margin={2}
-                    borderRadius={6}
-                    width={12}
-                    height={12}
-                    backgroundColor="yellow"
-                    onClick={(e: any) => {
-                      e.stopPropagation();
-                      isMinimized ? maximize(id) : minimize(id);
-                    }}
-                  />  
+                      margin={2}
+                      borderRadius={6}
+                      width={12}
+                      height={12}
+                      backgroundColor="yellow"
+                      onClick={(e: any) => {
+                        e.stopPropagation();
+                        isMinimized ? maximize(id) : minimize(id);
+                      }}
+                    />
                   )}
-                  
+
                   <Container
                     margin={2}
                     borderRadius={6}
@@ -236,12 +232,10 @@ export const Window: React.FC<BaseWindowProps> = ({
                   />
                 </Container>
               )}
-              
             </Card>
           )}
         </Container>
       </Root>
-      
     </a.group>
   );
 };

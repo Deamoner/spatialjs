@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { Window } from './BaseWindow';
-import { useWindowStore } from '../stores/windowStore';
-import { useThree } from '@react-three/fiber';
+import React, { useEffect, useCallback } from "react";
+import { Window } from "./BaseWindow";
+import { useWindowStore } from "../stores/windowStore";
+import { useThree } from "@react-three/fiber";
 
 interface WindowManagerProps {
   children?: React.ReactNode;
@@ -10,7 +10,6 @@ interface WindowManagerProps {
 export const WindowManager: React.FC<WindowManagerProps> = () => {
   const windows = useWindowStore((state) => state.windows);
   const setCamera = useWindowStore((state) => state.setCamera);
-  const resetWindowInfrontOfCamera = useWindowStore((state) => state.resetWindowInfrontOfCamera);
 
   const three = useThree((state) => ({ camera: state.camera }));
 
@@ -23,13 +22,17 @@ export const WindowManager: React.FC<WindowManagerProps> = () => {
   // When XR camera is set, set the camera in the store
   useEffect(() => {
     setCamera(three.camera);
-    //resetWindowInfrontOfCamera();
   }, [three.camera]);
 
   return (
     <>
       {Object.entries(windows).map(([id, window]) => (
-        <Window key={id} id={id} />
+        <Window
+          key={id}
+          id={id}
+          WindowComponent={window.component}
+          windowProps={window.props}
+        />
       ))}
     </>
   );

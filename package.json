@@ -1,6 +1,6 @@
 {
   "name": "@spatialjs/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./dist/spatialjs.es.js",
   "module": "./dist/spatialjs.es.js",
   "types": "./dist/index.d.ts",
@@ -81,5 +81,6 @@
     "react-dom": "^18.0.0",
     "three": "^0.167.0",
     "zustand": "^4.5.0"
-  }
+  },
+  "website": "https://www.spatialjs.dev/"
 }
