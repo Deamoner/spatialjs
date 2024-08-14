@@ -22,6 +22,7 @@ SpatialJS Core is a powerful library for building spatial applications for the o
 </p>
 
 ## Amazing Projects Making SpatialJS Possible:
+
 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
     <a href="https://github.com/pmndrs/react-three-fiber" target="_blank" rel="noopener noreferrer">
@@ -60,7 +61,7 @@ SpatialJS Core is a powerful library for building spatial applications for the o
 ## What does Spatialjs do?
 
 | Simple Example for a room with a music player | ![render of the above code](./assets/spatialjs-demo.gif) |
-| --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| --------------------------------------------- | -------------------------------------------------------- |
 
 ## Installation
 
@@ -69,19 +70,23 @@ Install SpatialJS Core and its peer dependencies:
 ```bash
 npm install @spatialjs/core react @react-three/fiber three @react-three/uikit
 ```
+
 ## Quick Start
 
-1. Add the WindowManager to your scene  
+1. Add the WindowManager to your scene
+
 ```tsx
 import { WindowManager, createWindow } from "@spatialjs/core";
-<WindowManager />
+<WindowManager />;
 ```
 
-2. Add a Window to your scene  
+2. Add a Window to your scene
+
 ```tsx
 import { createWindow } from "@spatialjs/core";
-const window = createWindow(<MusicPlayer />, {
+const window = createWindow(MusicPlayer, {
   title: "My Window",
+  disableBackground: true,
 });
 ```
 
@@ -96,7 +101,6 @@ Check out our [examples directory](https://www.spatialjs.dev/examples) for more 
 ## Contributing
 
 We welcome contributions! Please see our [contributing guidelines](link_to_contributing_guidelines) for more details.
-
 
 ## Support
 

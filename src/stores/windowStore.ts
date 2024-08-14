@@ -1,7 +1,7 @@
-import create from 'zustand';
-import { Vector2, Vector3, Euler } from 'three';
-import { calculateTilePositions } from '../Utils/tileModes';
-import { Camera } from '@react-three/fiber';
+import create from "zustand";
+import { Vector2, Vector3, Euler } from "three";
+import { calculateTilePositions } from "../Utils/tileModes";
+import { Camera } from "@react-three/fiber";
 
 export interface WindowInf {
   id: string;
@@ -9,7 +9,8 @@ export interface WindowInf {
   subtitle?: string;
   icon?: string;
   position: Vector3;
-  content: React.ReactNode;
+  component: React.ComponentType<any>;
+  props: any;
   width: number;
   height: number;
   isMinimized: boolean;
@@ -39,10 +40,14 @@ interface WindowStore {
   defaultTileDistance: number;
   defaultFocusDistance: number;
   addWindow: (
-    window: WindowInf
+    window: Omit<WindowInf, "component" | "props"> & {
+      component: React.ComponentType<any>;
+      props?: any;
+    }
   ) => void;
   removeWindow: (id: string) => void;
   updateWindow: (id: string, updates: Partial<WindowInf>) => void;
+  updateWindowProps: (id: string, props: any) => void;
   setPosition: (id: string, position: Vector3) => void;
   setScale: (id: string, scale: Vector3) => void;
   setRotation: (id: string, rotation: Euler) => void;
@@ -52,7 +57,7 @@ interface WindowStore {
   unfocus: (id: string) => void;
   close: (id: string) => void;
   tileWindows: (
-    mode: 'grid' | 'around' | 'cockpit',
+    mode: "grid" | "around" | "cockpit",
     adjustScale?: boolean
   ) => void;
   resetWindowPositions: () => void;
@@ -60,7 +65,7 @@ interface WindowStore {
   originalScales: Record<string, Vector3>;
   updateWindowSize: (id: string, size: Vector2) => void;
   recalculateTilePositions: () => void;
-  currentTileMode: 'grid' | 'around' | 'cockpit' | null;
+  currentTileMode: "grid" | "around" | "cockpit" | null;
   camera: Camera | null;
   setCamera: (camera: Camera) => void;
   resetWindowInfrontOfCamera: () => void;
@@ -80,18 +85,23 @@ const createWindowStore = create<WindowStore>((set, get) => ({
   selectedWindow: undefined,
   setSelectedWindow: (id) => set({ selectedWindow: id }),
   resetWindowInfrontOfCamera: () => {
-    if (get().debug) console.log('resetWindowInfrontOfCamera called');
+    if (get().debug) console.log("resetWindowInfrontOfCamera called");
     set((state) => ({
       windows: Object.fromEntries(
-        Object.entries(state.windows).map(([id, window]) => [id, { ...window, position: get().getPointInFrontOfCamera(5) }])
+        Object.entries(state.windows).map(([id, window]) => [
+          id,
+          { ...window, position: get().getPointInFrontOfCamera(5) },
+        ])
       ),
     }));
-    get().tileWindows('cockpit', false);
+    get().tileWindows("cockpit", false);
   },
   addWindow: (window) => {
-    if (get().debug) console.log('addWindow called');
+    if (get().debug) console.log("addWindow called");
     if (!window.position || window.position.equals(new Vector3(0, 0, 0))) {
-      window.position = get().getPointInFrontOfCamera(get().defaultTileDistance);
+      window.position = get().getPointInFrontOfCamera(
+        get().defaultTileDistance
+      );
     }
     console.log(window);
     set((state) => ({
@@ -99,33 +109,32 @@ const createWindowStore = create<WindowStore>((set, get) => ({
         ...state.windows,
         [window.id]: {
           ...window,
-          rotation: window.rotation || new Euler(),
+          component: window.component,
+          props: window.props || {},
         },
       },
+      selectedWindow: window.id,
     }));
-    if(window.disableTiling !== true){
-      console.log('onAdd Tile');
+
+    if (window.disableTiling !== true) {
       setTimeout(() => {
         get().focus(window.id);
         setTimeout(() => {
           get().unfocus(window.id);
-          get().tileWindows('grid', false);
-          }, 1200);
-        }, 300);
-      }
-      set((state) => ({
-        selectedWindow: window.id,
-      }));
-  },  
+          get().tileWindows("grid", false);
+        }, 1200);
+      }, 300);
+    }
+  },
   removeWindow: (id) => {
-    if (get().debug) console.log('removeWindow called');
+    if (get().debug) console.log("removeWindow called");
     set((state) => {
       const { [id]: _, ...rest } = state.windows;
       return { windows: rest };
     });
   },
   updateWindow: (id, updates) => {
-    if (get().debug) console.log('updateWindow called');
+    if (get().debug) console.log("updateWindow called");
     set((state) => ({
       windows: {
         ...state.windows,
@@ -133,8 +142,20 @@ const createWindowStore = create<WindowStore>((set, get) => ({
       },
     }));
   },
+  updateWindowProps: (id, props) => {
+    if (get().debug) console.log("updateWindowProps called");
+    set((state) => ({
+      windows: {
+        ...state.windows,
+        [id]: {
+          ...state.windows[id],
+          props: { ...state.windows[id].props, ...props },
+        },
+      },
+    }));
+  },
   setPosition: (id, position) => {
-    if (get().debug) console.log('setPosition called');
+    if (get().debug) console.log("setPosition called");
     set((state) => ({
       windows: {
         ...state.windows,
@@ -143,7 +164,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
     }));
   },
   setScale: (id, scale) => {
-    if (get().debug) console.log('setScale called');
+    if (get().debug) console.log("setScale called");
     set((state) => ({
       windows: {
         ...state.windows,
@@ -152,7 +173,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
     }));
   },
   setRotation: (id, rotation) => {
-    if (get().debug) console.log('setRotation called');
+    if (get().debug) console.log("setRotation called");
     set((state) => ({
       windows: {
         ...state.windows,
@@ -161,7 +182,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
     }));
   },
   minimize: (id) => {
-    if (get().debug) console.log('minimize called');
+    if (get().debug) console.log("minimize called");
     set((state) => {
       const window = state.windows[id];
       if (!window) return state;
@@ -202,10 +223,10 @@ const createWindowStore = create<WindowStore>((set, get) => ({
           [id]: state.originalScales[id] || window.scale.clone(),
         },
       };
-    })
+    });
   },
   maximize: (id) => {
-    if (get().debug) console.log('maximize called');
+    if (get().debug) console.log("maximize called");
     set((state) => {
       const window = state.windows[id];
       if (!window) return state;
@@ -219,10 +240,10 @@ const createWindowStore = create<WindowStore>((set, get) => ({
           },
         },
       };
-    })
+    });
   },
   focus: (id) => {
-    if (get().debug) console.log('focus called');
+    if (get().debug) console.log("focus called");
     set((state) => {
       const focusedWindow = state.windows[id];
       if (!focusedWindow) return state;
@@ -238,7 +259,9 @@ const createWindowStore = create<WindowStore>((set, get) => ({
         originalScales[id] = focusedWindow.scale.clone();
       }
 
-      const newPosition = get().getPointInFrontOfCamera(get().defaultFocusDistance); // Get point 3.5 units in front of camera
+      const newPosition = get().getPointInFrontOfCamera(
+        get().defaultFocusDistance
+      );
 
       return {
         windows: {
@@ -248,19 +271,18 @@ const createWindowStore = create<WindowStore>((set, get) => ({
             isFocused: true,
             position: newPosition,
             scale: new Vector3(1, 1, 1),
-            rotation: new Euler(), // Reset rotation when focused
+            rotation: new Euler(),
           },
         },
         originalPositions,
         originalScales,
       };
-    })
+    });
   },
   unfocus: (id) => {
-    if (get().debug) console.log('unfocus called');
+    if (get().debug) console.log("unfocus called");
     set((state) => {
       const window = state.windows[id];
-      console.log(window)
       if (!window) return state;
       return {
         windows: {
@@ -270,27 +292,25 @@ const createWindowStore = create<WindowStore>((set, get) => ({
             isFocused: false,
             position: state.originalPositions[id] || window.position,
             scale: state.originalScales[id] || window.scale,
-            rotation: window.rotation, // Keep original rotation when unfocused
-          }
+            rotation: window.rotation,
+          },
         },
       };
-    })
+    });
   },
   close: (id) => {
-    if (get().debug) console.log('close called');
+    if (get().debug) console.log("close called");
     set((state) => {
       const { [id]: closedWindow, ...rest } = state.windows;
       const newState = { windows: rest };
 
-      // Call the onClose callback if it exists
       if (closedWindow.onClose) {
         closedWindow.onClose();
       }
 
-      // Call the tileWindows function if we're in a tiled mode
       if (state.currentTileMode) {
         setTimeout(() => {
-          get().tileWindows(state.currentTileMode, true);
+          get().tileWindows(state.currentTileMode!, true);
         }, 0);
       }
 
@@ -298,12 +318,13 @@ const createWindowStore = create<WindowStore>((set, get) => ({
     });
   },
   tileWindows: (mode, adjustScale = true) => {
-    if (get().debug) console.log('tileWindows called');
+    if (get().debug) console.log("tileWindows called");
     set((state) => {
       const windowIds = Object.keys(state.windows).filter(
-        (id) => !state.windows[id].isFocused && state.windows[id].disableTiling !== true
+        (id) =>
+          !state.windows[id].isFocused &&
+          state.windows[id].disableTiling !== true
       );
-      console.log(windowIds);
       const { newPositions, newScales } = calculateTilePositions(
         windowIds,
         mode,
@@ -338,10 +359,10 @@ const createWindowStore = create<WindowStore>((set, get) => ({
         originalScales,
         currentTileMode: mode,
       };
-    })
+    });
   },
   resetWindowPositions: () => {
-    if (get().debug) console.log('resetWindowPositions called');
+    if (get().debug) console.log("resetWindowPositions called");
     set((state) => ({
       windows: Object.fromEntries(
         Object.entries(state.windows).map(([id, window]) => [
@@ -356,27 +377,39 @@ const createWindowStore = create<WindowStore>((set, get) => ({
       originalPositions: {},
       originalScales: {},
       currentTileMode: null,
-    }))
+    }));
   },
   originalPositions: {},
   originalScales: {},
   updateWindowSize: (id, size) => {
-    if (get().debug) console.log('updateWindowSize called');
+    if (get().debug) console.log("updateWindowSize called");
     set((state) => {
+      const currentWindow = state.windows[id];
+      if (!currentWindow) return state;
+      if (
+        currentWindow.width &&
+        currentWindow.height &&
+        currentWindow.width === size.x &&
+        currentWindow.height === size.y
+      ) {
+        return state; // No change, return the current state
+      }
       const updatedWindows = {
         ...state.windows,
-        [id]: { ...state.windows[id], size: size },
+        [id]: { ...state.windows[id], width: size.x, height: size.y },
       };
       return { windows: updatedWindows };
-    })
+    });
   },
   recalculateTilePositions: () => {
-    if (get().debug) console.log('recalculateTilePositions called');
+    if (get().debug) console.log("recalculateTilePositions called");
     set((state) => {
-      const mode = state.currentTileMode || 'grid';
+      const mode = state.currentTileMode || "grid";
       const windowIds = Object.keys(state.windows).filter(
-        (id) => !state.windows[id].isFocused && state.windows[id].disableTiling !== true
-      );  
+        (id) =>
+          !state.windows[id].isFocused &&
+          state.windows[id].disableTiling !== true
+      );
       const { newPositions, newScales } = calculateTilePositions(
         windowIds,
         mode,
@@ -392,14 +425,14 @@ const createWindowStore = create<WindowStore>((set, get) => ({
           ])
         ),
       };
-    })
+    });
   },
   currentTileMode: null,
   getPointInFrontOfCamera: (distance: number) => {
-    if (get().debug) console.log('getPointInFrontOfCamera called');
+    if (get().debug) console.log("getPointInFrontOfCamera called");
     const state = get();
     if (!state.camera) {
-      console.warn('Camera is not set');
+      console.warn("Camera is not set");
       return new Vector3();
     }
 
@@ -409,7 +442,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
       .clone()
       .add(cameraDirection.multiplyScalar(distance));
   },
-  debug: true,
+  debug: false,
   setDebug: (value: boolean) => set({ debug: value }),
 }));
 

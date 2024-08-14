@@ -1,14 +1,13 @@
-import React from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { Vector3 } from 'three';
-import { WindowInf, useWindowStore } from '../stores/windowStore';
-import { Window } from '../components/BaseWindow';
+import React from "react";
+import { v4 as uuidv4 } from "uuid";
+import { Euler, Vector3 } from "three";
+import { WindowInf, useWindowStore } from "../stores/windowStore";
+import { Window } from "../components/BaseWindow";
 
-interface CreateWindowOptions
-  extends Partial<Omit<WindowInf, 'content'>> {}
+interface CreateWindowOptions extends Partial<Omit<WindowInf, "content">> {}
 
 export function createWindow(
-  content: React.ReactNode,
+  component: React.ComponentType<any>,
   options: CreateWindowOptions = {}
 ): WindowInf {
   const windowStore = useWindowStore.getState();
@@ -27,15 +26,16 @@ export function createWindow(
   const defaultWindow: Partial<WindowInf> = {
     id: windowId,
     position: new Vector3(0, 0, 0),
-    title: '',
-    content,
+    title: "",
     width: 300,
     height: 200,
+    component: component,
     isMinimized: false,
     isFullscreen: false,
     scale: new Vector3(1, 1, 1),
+    rotation: new Euler(),
     isFocused: false,
-    opacity: 0.9, 
+    opacity: 0.9,
     followCamera: true,
   };
 
@@ -45,19 +45,26 @@ export function createWindow(
   };
 
   windowStore.addWindow(windowConfig as WindowInf);
-  console.log(`Created new window with title "${windowConfig.title}"`);
+  // console.log(`Created new window with title "${windowConfig.title}"`);
 
   return windowConfig as WindowInf;
 }
 
 interface CreateWindowComponentProps extends CreateWindowOptions {
-  content: React.ReactNode;
+  component: React.ComponentType<any>;
 }
 
 export function createWindowComponent({
-  content,
+  component,
   ...options
 }: CreateWindowComponentProps): React.ReactElement {
-  const windowConfig = createWindow(content, options);
-  return <Window key={windowConfig.id} id={windowConfig.id} />;
+  const windowConfig = createWindow(component, options);
+  return (
+    <Window
+      key={windowConfig.id}
+      id={windowConfig.id}
+      WindowComponent={component}
+      windowProps={options.props}
+    />
+  );
 }
