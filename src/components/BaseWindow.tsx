@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import { Group, Vector2 } from "three";
+import { Group, Vector2, Vector3 } from "three";
 import { a } from "@react-spring/three";
 import { useSpring } from "@react-spring/core";
 import { Root, Container, Text, Image } from "@react-three/uikit";
@@ -7,6 +7,7 @@ import { Card } from "./card";
 import { colors } from "../theme";
 import { useWindowStore } from "../stores/windowStore";
 import { debounce } from "lodash";
+import { useFrame, useThree } from "@react-three/fiber";
 
 interface BaseWindowProps {
   id: string;
@@ -29,6 +30,10 @@ export const Window: React.FC<BaseWindowProps> = ({
 }) => {
   const groupRef = useRef<Group>(null);
   const [selected, setSelected] = useState(false);
+  const { camera } = useThree((state) => ({
+    camera: state.camera,
+  }));
+  const [followPos, setFollowPos] = useState(camera.position.clone());
 
   const {
     title,
@@ -42,9 +47,6 @@ export const Window: React.FC<BaseWindowProps> = ({
     disableIcon: storeDisableIcon,
     disableActionBtns: storeDisableActionBtns,
     disableBackground: storeDisableBackground,
-    setPosition,
-    setScale,
-    setRotation,
     minimize,
     maximize,
     focus,
@@ -115,12 +117,17 @@ export const Window: React.FC<BaseWindowProps> = ({
     [id]
   );
 
+  useFrame(() => {
+    if (!groupRef.current || !followCamera) return;
+    groupRef!.current.lookAt(camera.position);
+  });
+
   return (
     <a.group
       ref={groupRef}
       position={spring}
       scale={springScale}
-      rotation={springRotation as any}
+      rotation={followCamera ? undefined : (springRotation as any)}
     >
       <Root>
         <Container flexDirection="column" alignItems="center" width="100%">
@@ -136,7 +143,7 @@ export const Window: React.FC<BaseWindowProps> = ({
             onSizeChange={debouncedUpdateWindowSize}
           >
             <Container flexDirection="column" height="100%" width="100%">
-              <Container flexGrow={1} padding={20} width="100%" height="100%">
+              <Container flexGrow={1} padding={10} width="100%" height="100%">
                 {MemoizedWindowComponent}
               </Container>
             </Container>
