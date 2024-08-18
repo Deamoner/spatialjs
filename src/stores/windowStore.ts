@@ -7,7 +7,7 @@ export interface WindowInf {
   id: string;
   title: string;
   subtitle?: string;
-  icon?: string;
+  icon?: string | React.ComponentType<any>;
   position: Vector3;
   component: React.ComponentType<any>;
   props: any;
@@ -25,6 +25,8 @@ export interface WindowInf {
   onClose?: () => void;
   onMinimize?: () => void;
   onFocus?: () => void;
+  selectable?: boolean;
+  disableInitialFocus?: boolean;
   disableTiling?: boolean;
   disableTitleBar?: boolean;
   disableIcon?: boolean;
@@ -103,7 +105,6 @@ const createWindowStore = create<WindowStore>((set, get) => ({
         get().defaultTileDistance
       );
     }
-    console.log(window);
     set((state) => ({
       windows: {
         ...state.windows,
@@ -113,8 +114,10 @@ const createWindowStore = create<WindowStore>((set, get) => ({
           props: window.props || {},
         },
       },
-      selectedWindow: window.id,
     }));
+    if (window.selectable) {
+      get().setSelectedWindow(window.id);
+    }
 
     if (window.disableTiling !== true) {
       setTimeout(() => {

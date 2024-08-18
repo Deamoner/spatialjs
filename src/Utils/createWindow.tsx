@@ -16,8 +16,8 @@ export function createWindow(
   );
 
   if (existingWindow) {
-    console.log(
-      `Window with title "${options.title}" already exists. Returning existing window.`
+    console.warn(
+      `Window with id "${options.id}" already exists. Returning existing window.`
     );
     return existingWindow;
   }
@@ -37,6 +37,7 @@ export function createWindow(
     isFocused: false,
     opacity: 0.9,
     followCamera: true,
+    selectable: true,
   };
 
   const windowConfig: Partial<WindowInf> = {
@@ -45,7 +46,6 @@ export function createWindow(
   };
 
   windowStore.addWindow(windowConfig as WindowInf);
-  // console.log(`Created new window with title "${windowConfig.title}"`);
 
   return windowConfig as WindowInf;
 }
