@@ -37,6 +37,7 @@ export function createWindow(
     isFocused: false,
     opacity: 0.9,
     followCamera: true,
+    selectable: true,
   };
 
   const windowConfig: Partial<WindowInf> = {

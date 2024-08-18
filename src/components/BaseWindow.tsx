@@ -1,4 +1,10 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useCallback,
+  isValidElement,
+} from "react";
 import { Group, Vector2, Vector3 } from "three";
 import { a } from "@react-spring/three";
 import { useSpring } from "@react-spring/core";
@@ -33,7 +39,6 @@ export const Window: React.FC<BaseWindowProps> = ({
   const { camera } = useThree((state) => ({
     camera: state.camera,
   }));
-  const [followPos, setFollowPos] = useState(camera.position.clone());
 
   const {
     title,
@@ -176,15 +181,21 @@ export const Window: React.FC<BaseWindowProps> = ({
                 flexShrink={0}
                 padding="0 40px"
               >
-                {!disableIcon && icon && (
-                  <Image
-                    src={icon}
-                    width={30}
-                    height={30}
-                    borderRadius={15}
-                    marginRight={10}
-                  />
-                )}
+                {!disableIcon &&
+                  icon &&
+                  (typeof icon === "object" ? (
+                    React.createElement(icon, {
+                      marginRight: 10,
+                    })
+                  ) : (
+                    <Image
+                      src={icon as string}
+                      width={30}
+                      height={30}
+                      borderRadius={15}
+                      marginRight={10}
+                    />
+                  ))}
                 {title && (
                   <Container flexDirection="column" paddingRight={10}>
                     <Text fontSize={12} color={colors.text}>
