@@ -46,7 +46,6 @@ export function createWindow(
   };
 
   windowStore.addWindow(windowConfig as WindowInf);
-  // console.log(`Created new window with title "${windowConfig.title}"`);
 
   return windowConfig as WindowInf;
 }
