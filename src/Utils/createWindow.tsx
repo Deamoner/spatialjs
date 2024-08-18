@@ -16,8 +16,8 @@ export function createWindow(
   );
 
   if (existingWindow) {
-    console.log(
-      `Window with title "${options.title}" already exists. Returning existing window.`
+    console.warn(
+      `Window with id "${options.id}" already exists. Returning existing window.`
     );
     return existingWindow;
   }

@@ -25,6 +25,7 @@ export interface WindowInf {
   onClose?: () => void;
   onMinimize?: () => void;
   onFocus?: () => void;
+  disableInitialFocus?: boolean;
   disableTiling?: boolean;
   disableTitleBar?: boolean;
   disableIcon?: boolean;
@@ -103,7 +104,6 @@ const createWindowStore = create<WindowStore>((set, get) => ({
         get().defaultTileDistance
       );
     }
-    console.log(window);
     set((state) => ({
       windows: {
         ...state.windows,
