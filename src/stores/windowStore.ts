@@ -35,6 +35,12 @@ export interface WindowInf {
   disableAdjustSize?: boolean;
   opacity?: number;
   rotation?: Euler;
+  originalSettings?: {
+    position?: Vector3;
+    scale?: Vector3;
+    rotation?: Euler;
+    followCamera?: boolean;
+  };
 }
 
 interface WindowStore {
@@ -63,8 +69,6 @@ interface WindowStore {
     adjustScale?: boolean
   ) => void;
   resetWindowPositions: () => void;
-  originalPositions: Record<string, Vector3>;
-  originalScales: Record<string, Vector3>;
   updateWindowSize: (id: string, size: Vector2) => void;
   recalculateTilePositions: () => void;
   currentTileMode: "grid" | "around" | "cockpit" | null;
@@ -190,10 +194,6 @@ const createWindowStore = create<WindowStore>((set, get) => ({
       const window = state.windows[id];
       if (!window) return state;
 
-      const originalPosition =
-        state.originalPositions[id] || window.position.clone();
-      let newScale = state.originalScales[id] || window.scale.clone();
-
       // Adjust scale based on current tile mode
       if (state.currentTileMode) {
         const { newScales } = calculateTilePositions(
@@ -203,7 +203,6 @@ const createWindowStore = create<WindowStore>((set, get) => ({
           state.camera!,
           true
         );
-        newScale = newScales[id] || newScale;
       }
 
       return {
@@ -213,17 +212,9 @@ const createWindowStore = create<WindowStore>((set, get) => ({
             ...window,
             isMinimized: true,
             isFocused: false,
-            position: originalPosition,
-            scale: newScale,
+            ...window.originalSettings,
+            originalSettings: undefined,
           },
-        },
-        originalPositions: {
-          ...state.originalPositions,
-          [id]: originalPosition,
-        },
-        originalScales: {
-          ...state.originalScales,
-          [id]: state.originalScales[id] || window.scale.clone(),
         },
       };
     });
@@ -234,12 +225,21 @@ const createWindowStore = create<WindowStore>((set, get) => ({
       const window = state.windows[id];
       if (!window) return state;
 
+      const originalSettings = {
+        ...window.originalSettings,
+        position: window.position ? window.position.clone() : undefined,
+        scale: window.scale ? window.scale.clone() : undefined,
+        rotation: window.rotation ? window.rotation.clone() : undefined,
+        followCamera: window.followCamera,
+      };
+
       return {
         windows: {
           ...state.windows,
           [id]: {
             ...window,
             isMinimized: false,
+            originalSettings,
           },
         },
       };
@@ -251,21 +251,17 @@ const createWindowStore = create<WindowStore>((set, get) => ({
       const focusedWindow = state.windows[id];
       if (!focusedWindow) return state;
 
-      const originalPositions = { ...state.originalPositions };
-      const originalScales = { ...state.originalScales };
-
-      // Store original position and scale if not already stored
-      if (!originalPositions[id]) {
-        originalPositions[id] = focusedWindow.position.clone();
-      }
-      if (!originalScales[id]) {
-        originalScales[id] = focusedWindow.scale.clone();
-      }
+      const originalSettings = {
+        ...focusedWindow.originalSettings,
+        position: focusedWindow.position.clone(),
+        scale: focusedWindow.scale.clone(),
+        rotation: focusedWindow.rotation.clone(),
+        followCamera: focusedWindow.followCamera,
+      };
 
       const newPosition = get().getPointInFrontOfCamera(
         get().defaultFocusDistance
       );
-
       return {
         windows: {
           ...state.windows,
@@ -274,11 +270,10 @@ const createWindowStore = create<WindowStore>((set, get) => ({
             isFocused: true,
             position: newPosition,
             scale: new Vector3(1, 1, 1),
-            rotation: new Euler(),
+            followCamera: true,
+            originalSettings,
           },
         },
-        originalPositions,
-        originalScales,
       };
     });
   },
@@ -286,6 +281,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
     if (get().debug) console.log("unfocus called");
     set((state) => {
       const window = state.windows[id];
+      console.log(window);
       if (!window) return state;
       return {
         windows: {
@@ -293,9 +289,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
           [id]: {
             ...window,
             isFocused: false,
-            position: state.originalPositions[id] || window.position,
-            scale: state.originalScales[id] || window.scale,
-            rotation: window.rotation,
+            ...window.originalSettings,
           },
         },
       };
@@ -335,15 +329,13 @@ const createWindowStore = create<WindowStore>((set, get) => ({
         state.camera!,
         adjustScale
       );
-      const originalPositions = { ...state.originalPositions };
-      const originalScales = { ...state.originalScales };
 
       windowIds.forEach((id) => {
-        if (!originalPositions[id]) {
-          originalPositions[id] = state.windows[id].position.clone();
-        }
-        if (!originalScales[id]) {
-          originalScales[id] = state.windows[id].scale.clone();
+        let originalSettings = state.windows[id].originalSettings;
+        if (!originalSettings) {
+          originalSettings = {
+            ...state.windows[id],
+          };
         }
       });
 
@@ -355,11 +347,18 @@ const createWindowStore = create<WindowStore>((set, get) => ({
               ...window,
               position: newPositions[id] || window.position,
               scale: adjustScale ? newScales[id] || window.scale : window.scale,
+              originalSettings: {
+                ...window.originalSettings,
+                position: newPositions[id] || window.position,
+                scale: adjustScale
+                  ? newScales[id] || window.scale
+                  : window.scale,
+                rotation: window.rotation,
+                followCamera: window.followCamera,
+              },
             },
           ])
         ),
-        originalPositions,
-        originalScales,
         currentTileMode: mode,
       };
     });
@@ -372,18 +371,13 @@ const createWindowStore = create<WindowStore>((set, get) => ({
           id,
           {
             ...window,
-            position: state.originalPositions[id] || window.position,
-            scale: state.originalScales[id] || window.scale,
+            ...window.originalSettings,
           },
         ])
       ),
-      originalPositions: {},
-      originalScales: {},
       currentTileMode: null,
     }));
   },
-  originalPositions: {},
-  originalScales: {},
   updateWindowSize: (id, size) => {
     if (get().debug) console.log("updateWindowSize called");
     set((state) => {

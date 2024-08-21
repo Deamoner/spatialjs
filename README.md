@@ -37,7 +37,7 @@ SpatialJS Core is a powerful library for building spatial applications for the o
       <img src="https://img.shields.io/badge/React_XR-000000?style=for-the-badge&logo=react&logoColor=white" alt="React XR" />
     </a>
     <a href="https://twitter.com/BelaBohlender" target="_blank" rel="noopener noreferrer">
-      <img src="https://img.shields.io/badge/@0xca0a-000000?style=for-the-badge&logo=twitter&logoColor=white" alt="Bela Bohlenderl Twitter" />
+      <img src="https://img.shields.io/badge/@BelaBohlender-000000?style=for-the-badge&logo=twitter&logoColor=white" alt="Bela Bohlenderl Twitter" />
     </a>
   </div>
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
@@ -45,7 +45,7 @@ SpatialJS Core is a powerful library for building spatial applications for the o
       <img src="https://img.shields.io/badge/React_Three_UI_Kit-000000?style=for-the-badge&logo=react&logoColor=white" alt="React Three UI Kit" />
     </a>
     <a href="https://twitter.com/BelaBohlender" target="_blank" rel="noopener noreferrer">
-      <img src="https://img.shields.io/badge/@0xca0a-000000?style=for-the-badge&logo=twitter&logoColor=white" alt="Bela Bohlender Twitter" />
+      <img src="https://img.shields.io/badge/@BelaBohlender-000000?style=for-the-badge&logo=twitter&logoColor=white" alt="Bela Bohlender Twitter" />
     </a>
   </div>
 </div>
