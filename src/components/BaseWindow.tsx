@@ -133,9 +133,15 @@ export const Window: React.FC<BaseWindowProps> = ({
       position={spring}
       scale={springScale}
       rotation={followCamera ? undefined : (springRotation as any)}
+      castShadow
     >
       <Root>
-        <Container flexDirection="column" alignItems="center" width="100%">
+        <Container
+          flexDirection="column"
+          alignItems="center"
+          width="100%"
+          castShadow
+        >
           <Card
             castShadow
             width="100%"
