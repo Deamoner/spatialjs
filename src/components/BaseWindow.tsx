@@ -41,6 +41,7 @@ export const Window: React.FC<BaseWindowProps> = ({
   }));
 
   const {
+    followCamera,
     title,
     subtitle,
     icon,
@@ -58,7 +59,6 @@ export const Window: React.FC<BaseWindowProps> = ({
     close,
     currentTileMode,
     opacity,
-    followCamera,
     rotation,
     selectedWindow,
     setSelectedWindow,
@@ -87,18 +87,11 @@ export const Window: React.FC<BaseWindowProps> = ({
     setSelected(selectedWindow === id);
   }, [selectedWindow, id]);
 
-  const { spring } = useSpring({
-    spring: position.toArray(),
-    config: { mass: 1, tension: 280, friction: 60 },
-  });
-
-  const { spring: springScale } = useSpring({
-    spring: scale.toArray(),
-    config: { mass: 1, tension: 280, friction: 60 },
-  });
-
-  const { spring: springRotation } = useSpring({
-    spring: [rotation.x, rotation.y, rotation.z],
+  const spring = useSpring({
+    position: position ? position.toArray() : [0, 0, 0],
+    scale: scale.toArray(),
+    rotation: rotation ? [rotation.x, rotation.y, rotation.z] : [0, 0, 0],
+    followCamera,
     config: { mass: 1, tension: 280, friction: 60 },
   });
 
@@ -130,9 +123,9 @@ export const Window: React.FC<BaseWindowProps> = ({
   return (
     <a.group
       ref={groupRef}
-      position={spring}
-      scale={springScale}
-      rotation={followCamera ? undefined : (springRotation as any)}
+      position={spring.position}
+      scale={spring.scale}
+      rotation={spring.rotation}
       castShadow
     >
       <Root>

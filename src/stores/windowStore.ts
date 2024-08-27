@@ -43,7 +43,7 @@ export interface WindowInf {
   };
 }
 
-interface WindowStore {
+export interface WindowStore {
   windows: Record<string, WindowInf>;
   defaultTileDistance: number;
   defaultFocusDistance: number;
@@ -79,7 +79,7 @@ interface WindowStore {
   debug: boolean;
   setDebug: (value: boolean) => void;
   selectedWindow: string | undefined;
-  setSelectedWindow: (id: string) => void;
+  setSelectedWindow: (id: string | undefined) => void;
 }
 
 const createWindowStore = create<WindowStore>((set, get) => ({
