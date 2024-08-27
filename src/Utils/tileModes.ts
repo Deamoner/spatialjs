@@ -1,9 +1,9 @@
-import { Camera, Vector3, Quaternion, Euler } from 'three';
-import { WindowInf } from '../stores/windowStore';
+import { Camera, Vector3, Quaternion, Euler } from "three";
+import { WindowInf } from "../stores/windowStore";
 
 export function calculateTilePositions(
   windowIds: string[],
-  mode: 'grid' | 'around' | 'cockpit',
+  mode: "grid" | "around" | "cockpit",
   windows: Record<string, WindowInf>,
   camera: Camera,
   adjustScale: boolean
@@ -23,18 +23,17 @@ export function calculateTilePositions(
     return position.applyQuaternion(cameraQuaternion).add(camera.position);
   };
 
-  if (mode === 'grid') {
+  if (mode === "grid") {
     const cols = Math.ceil(Math.sqrt(count));
     const rows = Math.ceil(count / cols);
-    const baseZ = -4; // Base distance from the camera
+    const baseZ = -3; // Base distance from the camera
     const spacing = 2; // Spacing between windows
 
     windowIds.forEach((id, index) => {
-      
       const window = windows[id];
       const col = index % cols;
       const row = Math.floor(index / cols);
-      const x = ((col - (cols - 1) / 2) * spacing) ;
+      const x = (col - (cols - 1) / 2) * spacing;
       const y = ((rows - 1) / 2 - row) * spacing;
       const z = baseZ - Math.abs(x) * 0.1 - Math.abs(y) * 0.1; // Curve the grid slightly
       newPositions[id] = rotatePosition(new Vector3(x, y, z));
@@ -44,7 +43,7 @@ export function calculateTilePositions(
         newScales[id] = targetSize.clone();
       }
     });
-  } else if (mode === 'around') {
+  } else if (mode === "around") {
     const radius = 5;
     const verticalOffset = 1; // Offset to raise windows slightly
     windowIds.forEach((id, index) => {
@@ -60,8 +59,13 @@ export function calculateTilePositions(
         newScales[id] = targetSize.clone();
       }
     });
-  } else if (mode === 'cockpit') {
-    ({ newPositions, newScales } = cockpit(windowIds, windows, camera, adjustScale));
+  } else if (mode === "cockpit") {
+    ({ newPositions, newScales } = cockpit(
+      windowIds,
+      windows,
+      camera,
+      adjustScale
+    ));
   }
 
   return { newPositions, newScales };
@@ -72,7 +76,10 @@ function cockpit(
   windows: Record<string, WindowInf>,
   camera: Camera,
   adjustScale: boolean
-): { newPositions: Record<string, Vector3>; newScales: Record<string, Vector3> } {
+): {
+  newPositions: Record<string, Vector3>;
+  newScales: Record<string, Vector3>;
+} {
   const newPositions: Record<string, Vector3> = {};
   const newScales: Record<string, Vector3> = {};
   // @ts-ignore
@@ -113,4 +120,3 @@ function cockpit(
 
   return { newPositions, newScales };
 }
-
