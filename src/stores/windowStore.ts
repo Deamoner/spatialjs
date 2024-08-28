@@ -323,43 +323,19 @@ const createWindowStore = create<WindowStore>((set, get) => ({
           !state.windows[id].isFocused &&
           state.windows[id].disableTiling !== true
       );
-      const { newPositions, newScales } = calculateTilePositions(
+      const windowChanges = calculateTilePositions(
         windowIds,
         mode,
         state.windows,
         state.camera!,
-        adjustScale
+        true
       );
 
-      windowIds.forEach((id) => {
-        let originalSettings = state.windows[id].originalSettings;
-        if (!originalSettings) {
-          originalSettings = {
-            ...state.windows[id],
-          };
-        }
-      });
-
       return {
-        windows: Object.fromEntries(
-          Object.entries(state.windows).map(([id, window]) => [
-            id,
-            {
-              ...window,
-              position: newPositions[id] || window.position,
-              scale: adjustScale ? newScales[id] || window.scale : window.scale,
-              originalSettings: {
-                ...window.originalSettings,
-                position: newPositions[id] || window.position,
-                scale: adjustScale
-                  ? newScales[id] || window.scale
-                  : window.scale,
-                rotation: window.rotation,
-                followCamera: window.followCamera,
-              },
-            },
-          ])
-        ),
+        windows: {
+          ...state.windows,
+          ...windowChanges,
+        },
         currentTileMode: mode,
       };
     });
