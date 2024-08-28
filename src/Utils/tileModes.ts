@@ -7,12 +7,8 @@ export function calculateTilePositions(
   windows: Record<string, WindowInf>,
   camera: Camera,
   adjustScale: boolean
-): {
-  newPositions: Record<string, Vector3>;
-  newScales: Record<string, Vector3>;
-} {
-  let newPositions: Record<string, Vector3> = {};
-  let newScales: Record<string, Vector3> = {};
+): Record<string, WindowInf> {
+  let newWindows: Record<string, WindowInf> = {};
   const count = windowIds.length;
 
   // Helper function to rotate a position based on camera orientation
@@ -36,12 +32,11 @@ export function calculateTilePositions(
       const x = (col - (cols - 1) / 2) * spacing;
       const y = ((rows - 1) / 2 - row) * spacing;
       const z = baseZ - Math.abs(x) * 0.1 - Math.abs(y) * 0.1; // Curve the grid slightly
-      newPositions[id] = rotatePosition(new Vector3(x, y, z));
-
-      if (adjustScale) {
-        const targetSize = new Vector3(1.5, 1, 1); // Adjust this to your desired uniform size
-        newScales[id] = targetSize.clone();
-      }
+      newWindows[id] = {
+        ...windows[id],
+        position: rotatePosition(new Vector3(x, y, z)),
+        scale: adjustScale ? new Vector3(1.5, 1, 1) : windows[id].scale,
+      };
     });
   } else if (mode === "around") {
     const radius = 5;
@@ -51,24 +46,17 @@ export function calculateTilePositions(
       const x = Math.sin(angle) * radius;
       const y = verticalOffset;
       const z = -Math.cos(angle) * radius;
-      newPositions[id] = rotatePosition(new Vector3(x, y, z));
-
-      if (adjustScale) {
-        // Optionally adjust scale for 'around' mode
-        const targetSize = new Vector3(1, 1, 1); // Adjust as needed
-        newScales[id] = targetSize.clone();
-      }
+      newWindows[id] = {
+        ...windows[id],
+        position: rotatePosition(new Vector3(x, y, z)),
+        scale: adjustScale ? new Vector3(1, 1, 1) : windows[id].scale,
+      };
     });
   } else if (mode === "cockpit") {
-    ({ newPositions, newScales } = cockpit(
-      windowIds,
-      windows,
-      camera,
-      adjustScale
-    ));
+    newWindows = cockpit(windowIds, windows, camera, adjustScale);
   }
 
-  return { newPositions, newScales };
+  return newWindows;
 }
 
 function cockpit(
@@ -76,12 +64,8 @@ function cockpit(
   windows: Record<string, WindowInf>,
   camera: Camera,
   adjustScale: boolean
-): {
-  newPositions: Record<string, Vector3>;
-  newScales: Record<string, Vector3>;
-} {
-  const newPositions: Record<string, Vector3> = {};
-  const newScales: Record<string, Vector3> = {};
+): Record<string, WindowInf> {
+  const newWindows: Record<string, WindowInf> = {};
   // @ts-ignore
   const fov = camera.fov * (Math.PI / 180);
   // @ts-ignore
@@ -103,20 +87,12 @@ function cockpit(
     // const scaleFactorHeight = maxHeight / (window.height * rows);
     // const scaleFactor = Math.min(scaleFactorWidth, scaleFactorHeight, 1) * 0.9; // 10% margin
 
-    newScales[id] = new Vector3(1, 1, 1);
-
-    const scaledWidth = 1;
-    const scaledHeight = 1;
-
-    // Calculate position
-    const x = (col - (maxCols - 1) / 2) * scaledWidth * 1.1;
-    const y = ((rows - 1) / 2 - row) * scaledHeight * 1.1;
-    const z = -baseDistance - Math.abs(x) * 0.05 - Math.abs(y) * 0.05; // Slight curve
-
-    const position = new Vector3(x, y, z);
-    position.applyEuler(camera.rotation);
-    newPositions[id] = camera.position.clone().add(position);
+    newWindows[id] = {
+      ...windows[id],
+      position: camera.position.clone(),
+      scale: new Vector3(1, 1, 1),
+    };
   });
 
-  return { newPositions, newScales };
+  return newWindows;
 }

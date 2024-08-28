@@ -1,10 +1,5 @@
-import React, {
-  useRef,
-  useEffect,
-  useState,
-  useCallback,
-  isValidElement,
-} from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { Group, Vector2, Vector3 } from "three";
 import { a } from "@react-spring/three";
 import { useSpring } from "@react-spring/core";
@@ -62,19 +57,23 @@ export const Window: React.FC<BaseWindowProps> = ({
     rotation,
     selectedWindow,
     setSelectedWindow,
-  } = useWindowStore((state) => ({
-    ...state.windows[id],
-    setPosition: state.setPosition,
-    setScale: state.setScale,
-    setRotation: state.setRotation,
-    minimize: state.minimize,
-    maximize: state.maximize,
-    focus: state.focus,
-    close: state.close,
-    currentTileMode: state.currentTileMode,
-    selectedWindow: state.selectedWindow,
-    setSelectedWindow: state.setSelectedWindow,
-  }));
+    debug,
+  } = useWindowStore(
+    useShallow((state) => ({
+      ...state.windows[id],
+      setPosition: state.setPosition,
+      setScale: state.setScale,
+      setRotation: state.setRotation,
+      minimize: state.minimize,
+      maximize: state.maximize,
+      focus: state.focus,
+      close: state.close,
+      currentTileMode: state.currentTileMode,
+      selectedWindow: state.selectedWindow,
+      setSelectedWindow: state.setSelectedWindow,
+      debug: state.debug,
+    }))
+  );
 
   // Use prop values if provided, otherwise fall back to store values
   const disableTitleBar = propDisableTitleBar ?? storeDisableTitleBar;
@@ -87,9 +86,16 @@ export const Window: React.FC<BaseWindowProps> = ({
     setSelected(selectedWindow === id);
   }, [selectedWindow, id]);
 
+  if (debug) {
+    console.log(`id ${id} followCamera`, followCamera);
+    console.log(`id ${id} rotation`, rotation);
+    console.log(`id ${id} position`, position);
+    console.log(`id ${id} scale`, scale);
+  }
+
   const spring = useSpring({
     position: position ? position.toArray() : [0, 0, 0],
-    scale: scale.toArray(),
+    scale: scale ? scale.toArray() : [1, 1, 1],
     rotation: rotation ? [rotation.x, rotation.y, rotation.z] : [0, 0, 0],
     followCamera,
     config: { mass: 1, tension: 280, friction: 60 },
@@ -125,7 +131,7 @@ export const Window: React.FC<BaseWindowProps> = ({
       ref={groupRef}
       position={spring.position}
       scale={spring.scale}
-      rotation={spring.rotation}
+      rotation={followCamera ? undefined : spring.rotation}
       castShadow
     >
       <Root>
