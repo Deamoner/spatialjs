@@ -14,6 +14,7 @@ export const WindowManager: React.FC<WindowManagerProps> = () => {
   const recalculateTilePositions = useWindowStore(
     (state) => state.recalculateTilePositions
   );
+  const debug = useWindowStore((state) => state.debug);
 
   const three = useThree((state) => ({ camera: state.camera }));
 
@@ -30,15 +31,11 @@ export const WindowManager: React.FC<WindowManagerProps> = () => {
   }, [camera]);
   useFrame(() => {
     if (!readNextFrame) return;
-    console.log("camera update");
-    setCamera(three.camera);
+    if (debug) console.log("camera update");
+    setCamera(camera);
     recalculateTilePositions();
     readNextFrame = false;
   });
-  useEffect(() => {
-    setCamera(three.camera);
-    recalculateTilePositions();
-  }, [camera]);
 
   return (
     <>

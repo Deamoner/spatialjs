@@ -34,7 +34,7 @@ export interface WindowInf {
   disableBackground?: boolean;
   disableAdjustSize?: boolean;
   opacity?: number;
-  rotation?: Euler;
+  rotation?: Euler | undefined;
   originalSettings?: {
     position?: Vector3;
     scale?: Vector3;
@@ -270,6 +270,7 @@ const createWindowStore = create<WindowStore>((set, get) => ({
             isFocused: true,
             position: newPosition,
             scale: new Vector3(1, 1, 1),
+            rotation: new Euler(0, 0, 0),
             followCamera: true,
             originalSettings,
           },
@@ -407,20 +408,19 @@ const createWindowStore = create<WindowStore>((set, get) => ({
           !state.windows[id].isFocused &&
           state.windows[id].disableTiling !== true
       );
-      const { newPositions, newScales } = calculateTilePositions(
+      const windowChanges = calculateTilePositions(
         windowIds,
         mode,
         state.windows,
         state.camera!,
         true
       );
+
       return {
-        windows: Object.fromEntries(
-          Object.entries(state.windows).map(([id, window]) => [
-            id,
-            { ...window, position: newPositions[id], scale: newScales[id] },
-          ])
-        ),
+        windows: {
+          ...state.windows,
+          ...windowChanges,
+        },
       };
     });
   },
