@@ -33,7 +33,7 @@ export function createWindow(
     isMinimized: false,
     isFullscreen: false,
     scale: new Vector3(1, 1, 1),
-    rotation: new Euler(),
+    rotation: new Euler(0, 0, 0),
     isFocused: false,
     opacity: 0.9,
     followCamera: true,
